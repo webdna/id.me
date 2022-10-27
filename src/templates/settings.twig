@@ -1,0 +1,28 @@
+{% import '_includes/forms.twig' as forms %}
+
+{{ forms.autosuggestField({
+    label: "Client ID",
+    id: 'clientId',
+    name: 'clientId',
+    suggestEnvVars: true,
+    value: settings.clientId,
+    placeholder: ""
+}) }}
+
+{{ forms.autosuggestField({
+    label: "Client Secret",
+    id: 'clientSecret',
+    name: 'clientSecret',
+    suggestEnvVars: true,
+    value: settings.clientSecret,
+    placeholder: ""
+}) }}
+
+{{ forms.checkboxSelectField({
+    label: "Groups"|t('idme'),
+    instructions: "Select which verifiable groups to check for"|t('idme'),
+    name: 'groups',
+    values: settings.groups,
+    options: settings.getGroupOptions(),
+    showAllOption: true,
+}) }}

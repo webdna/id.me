@@ -1,0 +1,30 @@
+{
+    "name": "webdna/craft-idme",
+    "type": "craft-plugin",
+    "require": {
+        "craftcms/cms": "^4.0",
+        "league/oauth2-client": "^2.6",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "webdna\\idme\\": "src/"
+        }
+    },
+    "support": {
+        "email": "info@webdna.co.uk",
+        "issues": "https://github.com/webdna/id.me/issues?state=open",
+        "source": "https://github.com/webdna/id.me",
+        "docs": "https://github.com/webdna/id.me/blob/main/README.md"
+    },
+    "authors": [
+        {
+            "name": "webdna"
+        }
+    ],
+    "extra": {
+        "name": "Id.me",
+        "handle": "idme"
+    }
+}

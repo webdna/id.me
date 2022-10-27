@@ -1,0 +1,19 @@
+{% import '_includes/forms.twig' as forms %}
+<div id="idme" class="hidden">
+{% if availableGroups|length %}
+
+    {{ forms.checkboxSelectField({
+        label: "Available Groups"|t('idme'),
+        instructions: "Select which verifiable groups qualify for this discount"|t('idme'),
+        name: 'groups',
+        values: selectedGroups,
+        options: availableGroups,
+        showAllOption: availableGroups|length > 1,
+    }) }}
+
+{% else %}
+
+    {{ 'There are no available groups, please add available groups in the plugin settings.'|t('idme') }}
+
+{% endif %}
+</div>
