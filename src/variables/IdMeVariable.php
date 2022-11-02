@@ -12,7 +12,7 @@ class IdMeVariable
 {
     public function renderVerifyButton(?string $state=null, ?string $text=null, string $mode='popup', ?string $redirect=null): string
     {
-        $html = '';
+        $html = '<div style="display:inline-flex; height:40px; gap:10px; padding:10px; color:white; background-color:#2E3F51; border-radius:5px;"><img src="https://s3.amazonaws.com/idme-design/brand-assets/Primary-IDme-Logo-RGB-white.png" alt="id.me" style="height:100%; "/> <span>Verified</span></div>';
         
         //Craft::$app->getSession()->set('id.me', null);
         if (!Craft::$app->getSession()->get('id.me')) {
