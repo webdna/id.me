@@ -5,6 +5,7 @@ namespace webdna\idme\models;
 use craft\base\Model;
 use craft\helpers\App;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 
 class Settings extends Model
 {
@@ -26,7 +27,7 @@ class Settings extends Model
     public array $groups = [];
     public ?int $logoId = null;
     public ?int $heroId = null;
-    public string $display = 'popup';
+    
 
     public function rules(): array
     {
@@ -35,20 +36,14 @@ class Settings extends Model
         ];
     }
 
-    public function getClientId(): string
+    public function getClientId(bool $parse = true): string
     {
-        if (!empty($this->clientId)) {
-            return App::parseEnv($this->clientId);
-        }
-        return $this->clientId;
+        return $parse ? App::parseEnv($this->clientId) : $this->clientId;
     }
 
-    public function getClientSecret(): string
+    public function getClientSecret(bool $parse = true): string
     {
-        if (!empty($this->clientSecret)) {
-            return App::parseEnv($this->clientSecret);
-        }
-        return $this->clientSecret;
+        return $parse ? App::parseEnv($this->clientSecret) : $this->clientSecret;
     }
 
     public function getGroupOptions(): array
@@ -63,4 +58,8 @@ class Settings extends Model
         return $options;
     }
 
+    public function getRedirectUrl(): string
+    {
+        return UrlHelper::siteUrl($this::REDIRECT_URL);
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace webdna\idme\services;
 
-use webdna\idme\Plugin;
+use webdna\idme\Idme;
 use webdna\idme\records\IdMeDiscount;
 
 use Craft;
@@ -42,7 +42,7 @@ class Service extends Component
         return $codes;
     }
 
-    public function getGroupsByDiscountId(int $discountId): ?array
+    public function getGroupsByDiscountId(?int $discountId): ?array
     {
         if (!$discountId) {
             return null;
@@ -99,7 +99,7 @@ class Service extends Component
     public function addIdMeTab(array &$context): string
     {
         $discountId = $context['discount']->id;
-        $settings = Plugin::getInstance()->settings;
+        $settings = Idme::getInstance()->settings;
         $availableGroups = [];
         $selectedGroups = $this->getGroupsByDiscountId($discountId);
 
@@ -119,11 +119,14 @@ class Service extends Component
 
     public function processVerification($code, $state): bool
     {
+        $session = Craft::$app->getSession();
+        $session->set('id.me', null);
+        
         $provider = $this->_createProvider();
         try {
             $accessToken = $provider->getAccessToken('authorization_code', [
                 'code' => $code, 
-                'scope' => implode(',',Plugin::getInstance()->settings->groups)
+                'scope' => implode(',',Idme::getInstance()->settings->groups)
             ]);
         } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
             // LOG IT
@@ -140,7 +143,15 @@ class Service extends Component
             return false;
         }
 
-        $this->applyGroupsDiscount($resourceOwner->toArray(),$state);
+        $session->set('id.me', $resourceOwner->toArray());
+        
+        Commerce::getInstance()->getCarts()->setSessionCartNumber($state);
+        $cart = Commerce::getInstance()->getCarts()->getCart();
+        Craft::$app->getElements()->saveElement($cart);
+            
+        Craft::$app->getSession()->setFlash('notice', 'ID.me Verified');
+
+        //$this->applyGroupsDiscount($resourceOwner->toArray(),$state);
 
         return true;
     }
@@ -175,11 +186,11 @@ class Service extends Component
 
     private function _createProvider(): GenericProvider
     {
-        $settings = Plugin::getInstance()->settings;
+        $settings = Idme::getInstance()->settings;
         $provider = new GenericProvider([
             'clientId'                => $settings->getClientId(),
             'clientSecret'            => $settings->getClientSecret(),
-            'redirectUri'             => UrlHelper::siteUrl($settings::REDIRECT_URL),
+            'redirectUri'             => $settings->getRedirectUrl(),
             'urlAuthorize'            => 'https://api.id.me/oauth/authorize',
             'urlAccessToken'          => 'https://api.id.me/oauth/token',
             'urlResourceOwnerDetails' => 'https://api.id.me/api/public/v3/attributes.json',

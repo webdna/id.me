@@ -1,5 +1,15 @@
 {% import '_includes/forms.twig' as forms %}
 
+{{ forms.textField({
+    label: "Callback URL",
+    name: 'callbackUrl',
+    readonly: true,
+    instructions: "Use this URL in your ID.me app redirect URIs",
+    value: settings.getRedirectUrl(),
+}) }}
+
+<hr>
+
 {{ forms.autosuggestField({
     label: "Client ID",
     id: 'clientId',
@@ -18,9 +28,10 @@
     placeholder: ""
 }) }}
 
+
 {{ forms.checkboxSelectField({
     label: "Groups"|t('idme'),
-    instructions: "Select which verifiable groups to check for"|t('idme'),
+    instructions: "Select which verifiable groups to check for. You cannot select an option that you do not have selected in your ID.me app settings."|t('idme'),
     name: 'groups',
     values: settings.groups,
     options: settings.getGroupOptions(),

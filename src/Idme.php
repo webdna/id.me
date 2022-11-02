@@ -9,7 +9,7 @@ use webdna\idme\variables\IdMeVariable;
 
 use Craft;
 use craft\base\Model;
-use craft\base\Plugin as BasePlugin;
+use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\events\DefineBehaviorsEvent;
 use craft\web\twig\variables\CraftVariable;
@@ -17,9 +17,14 @@ use craft\web\twig\variables\CraftVariable;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\services\Discounts;
 
+use craft\commerce\adjusters\Discount;
+use craft\commerce\models\Discount as DiscountModel;
+use craft\commerce\models\OrderAdjustment;
+use craft\commerce\events\DiscountAdjustmentsEvent;
+
 use yii\base\Event;
 
-class Plugin extends BasePlugin
+class Idme extends Plugin
 {
     public bool $hasCpSettings = true;
 
@@ -43,6 +48,26 @@ class Plugin extends BasePlugin
                 $discountId = $event->discount->id;
                 $groups = Craft::$app->getRequest()->getBodyParam('groups');
                 $this->service->saveIdMeDiscount($discountId, $groups);
+            }
+        );
+        
+        Event::on(
+            Discount::class,
+            Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED,
+            function(DiscountAdjustmentsEvent $event) {
+                $discount = $event->discount;
+                $selectedGroups = $this->service->getGroupsByDiscountId($discount->id);
+                if ($selectedGroups) {
+                    $event->isValid = false;
+                    
+                    if ($idme = Craft::$app->getSession()->get('id.me')) {
+                        foreach ($idme['status'] as $group) {
+                            if ($group['verified'] && in_array($group['group'], $selectedGroups)) {
+                                $event->isValid = true;
+                            }
+                        }
+                    }
+                }
             }
         );
 
