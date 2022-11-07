@@ -39,6 +39,8 @@ Once the app is created and the groups selected, then enter the Client ID & Clie
 
 Also specify which groups (in the plugin settings) you want to be able to verify. These cannot be ones that have not be selected in your ID.me app. 
 
+Once these groups are selected, then go to discounts and you will see a "Verified Groups" tabs in which you can selected which group will have this discount applied.
+
 
 ## Usage
 
