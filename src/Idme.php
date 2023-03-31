@@ -20,7 +20,9 @@ use craft\commerce\services\Discounts;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\LineItem;
 use craft\commerce\events\DiscountAdjustmentsEvent;
+use craft\commerce\events\MatchLineItemEvent;
 
 use yii\base\Event;
 
@@ -55,6 +57,26 @@ class Idme extends Plugin
             Discount::class,
             Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED,
             function(DiscountAdjustmentsEvent $event) {
+                $discount = $event->discount;
+                $selectedGroups = $this->service->getGroupsByDiscountId($discount->id);
+                if ($selectedGroups) {
+                    $event->isValid = false;
+                    
+                    if ($idme = Craft::$app->getSession()->get('id.me')) {
+                        foreach ($idme['status'] as $group) {
+                            if ($group['verified'] && in_array($group['group'], $selectedGroups)) {
+                                $event->isValid = true;
+                            }
+                        }
+                    }
+                }
+            }
+        );
+        
+        Event::on(
+            Discounts::class,
+            Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM,
+            function (MatchLineItemEvent $event) {
                 $discount = $event->discount;
                 $selectedGroups = $this->service->getGroupsByDiscountId($discount->id);
                 if ($selectedGroups) {
